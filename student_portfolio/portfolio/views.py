@@ -13,3 +13,9 @@ def add_project(request):
         form = ProjectForm()
 
     return render(request, 'portfolio/add_project.html', {'form': form})
+from django.shortcuts import render
+from .models import Project
+
+def project_list(request):
+    projects = Project.objects.all()
+    return render(request, 'portfolio/projects.html', {'projects': projects})
