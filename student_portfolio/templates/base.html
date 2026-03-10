@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Student Portfolio Builder — Showcase your projects, skills, and experience">
+    <title>{% block title %}Portfolio Builder{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="{% url 'dashboard' %}" class="navbar-brand">⚡ PortfolioBuilder</a>
+            <ul class="navbar-links">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'blog_list' %}">Blog</a></li>
+                    <li><a href="{% url 'resume_preview' %}">Resume</a></li>
+                    <li><a href="{% url 'public_portfolio' slug=user.profile.slug %}">My Portfolio</a></li>
+                    <li><a href="{% url 'profile_edit' %}">Profile</a></li>
+                    <li><a href="{% url 'logout' %}" class="btn-accent">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}" class="btn-accent">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    <div class="container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <!-- Content -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Built with ⚡ Student Portfolio Builder &copy; 2026</p>
+    </footer>
+</body>
+</html>
