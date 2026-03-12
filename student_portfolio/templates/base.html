@@ -8,7 +8,37 @@
     <title>{% block title %}Portfolio Builder{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body data-theme="{{ user.profile.theme|default:'dark' }}" id="app-body">
+    <script>
+        // Guest theme fallback
+        if (!'{{ user.is_authenticated }}' || '{{ user.is_authenticated }}' === 'False') {
+            const guestTheme = localStorage.getItem('guestTheme') || 'dark';
+            document.getElementById('app-body').setAttribute('data-theme', guestTheme);
+            const selector = document.getElementById('theme-selector');
+            if(selector) selector.value = guestTheme;
+        }
+
+        function setGuestTheme(theme) {
+            localStorage.setItem('guestTheme', theme);
+            document.getElementById('app-body').setAttribute('data-theme', theme);
+        }
+
+        async function changeTheme(theme) {
+            document.getElementById('app-body').setAttribute('data-theme', theme);
+            try {
+                await fetch("{% url 'change_theme' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({'theme': theme})
+                });
+            } catch(e) {
+                console.error("Theme change error", e);
+            }
+        }
+    </script>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-inner">
@@ -19,9 +49,23 @@
                     <li><a href="{% url 'blog_list' %}">Blog</a></li>
                     <li><a href="{% url 'resume_selection' %}">Resume</a></li>
                     <li><a href="{% url 'public_portfolio' slug=user.profile.slug %}">My Portfolio</a></li>
+                    <li>
+                        <select id="theme-selector" onchange="changeTheme(this.value)" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px;">
+                            <option value="dark" {% if user.profile.theme == 'dark' %}selected{% endif %}>🌙 Dark Mode</option>
+                            <option value="light" {% if user.profile.theme == 'light' %}selected{% endif %}>☀️ Light Mode</option>
+                            <option value="developer" {% if user.profile.theme == 'developer' %}selected{% endif %}>💻 Medium (Dev) Mode</option>
+                        </select>
+                    </li>
                     <li><a href="{% url 'profile_edit' %}">Profile</a></li>
                     <li><a href="{% url 'logout' %}" class="btn-accent">Logout</a></li>
                 {% else %}
+                    <li>
+                        <select id="theme-selector" onchange="setGuestTheme(this.value)" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px;">
+                            <option value="dark">🌙 Dark Mode</option>
+                            <option value="light">☀️ Light Mode</option>
+                            <option value="developer">💻 Medium (Dev) Mode</option>
+                        </select>
+                    </li>
                     <li><a href="{% url 'login' %}">Login</a></li>
                     <li><a href="{% url 'register' %}" class="btn-accent">Sign Up</a></li>
                 {% endif %}

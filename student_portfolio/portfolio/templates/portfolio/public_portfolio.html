@@ -3,6 +3,13 @@
 {% block title %}{{ portfolio_user.username }}'s Portfolio{% endblock %}
 
 {% block content %}
+<style>
+.w-1 { width: 20%; }
+.w-2 { width: 40%; }
+.w-3 { width: 60%; }
+.w-4 { width: 80%; }
+.w-5 { width: 100%; }
+</style>
 <div class="fade-in">
     <!-- Profile Header -->
     <div class="profile-header">
@@ -35,7 +42,7 @@
             <div class="skill-bar mb-1">
                 <span class="skill-name">{{ skill.name }}</span>
                 <div class="skill-progress">
-                    <div class="skill-progress-fill" style="width: {{ skill.proficiency }}0%;"></div>
+                    <div class="skill-progress-fill w-{{ skill.proficiency }}"></div>
                 </div>
                 <span class="skill-level">{{ skill.proficiency }}/5</span>
             </div>
@@ -107,6 +114,35 @@
                 <p><strong>{{ exp.company }}</strong></p>
                 {% if exp.description %}<p class="card-body">{{ exp.description }}</p>{% endif %}
                 <p class="text-muted mt-1">{{ exp.start_date|date:"M Y" }} — {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Achievements -->
+    {% if achievements %}
+    <div class="mb-3">
+        <div class="section-header">
+            <h2>🏆 Achievements & Certifications</h2>
+        </div>
+        <div class="grid-2">
+            {% for ach in achievements %}
+            <div class="card">
+                <h3>{{ ach.title }}</h3>
+                {% if ach.description %}<p class="card-body">{{ ach.description }}</p>{% endif %}
+                <p class="text-muted mt-1">Earned: {% if ach.date_earned %}{{ ach.date_earned|date:"M Y" }}{% else %}N/A{% endif %}</p>
+                
+                {% if ach.certificate_file or ach.certificate_url %}
+                <div class="mt-2" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% if ach.certificate_file %}
+                    <a href="{{ ach.certificate_file.url }}" target="_blank" class="badge badge-primary" style="text-decoration: none;">📄 View Certificate</a>
+                    {% endif %}
+                    {% if ach.certificate_url %}
+                    <a href="{{ ach.certificate_url }}" target="_blank" class="badge badge-secondary" style="text-decoration: none;">🔗 Credential Link</a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>

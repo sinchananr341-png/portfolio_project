@@ -27,6 +27,11 @@ urlpatterns = [
     path('experience/<int:pk>/edit/', views.experience_edit, name='experience_edit'),
     path('experience/<int:pk>/delete/', views.experience_delete, name='experience_delete'),
 
+    # Achievements
+    path('achievement/add/', views.achievement_create, name='achievement_create'),
+    path('achievement/<int:pk>/edit/', views.achievement_edit, name='achievement_edit'),
+    path('achievement/<int:pk>/delete/', views.achievement_delete, name='achievement_delete'),
+
     # Resume Template System
     path('resume/', views.resume_selection, name='resume_selection'),
     path('resume/preview/<str:template_name>/', views.resume_preview, name='resume_preview'),

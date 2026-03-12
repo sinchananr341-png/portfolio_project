@@ -66,7 +66,7 @@ class ExperienceForm(forms.ModelForm):
 class AchievementForm(forms.ModelForm):
     class Meta:
         model = Achievement
-        fields = ['title', 'description', 'date_earned', 'certificate_image', 'certificate_url']
+        fields = ['title', 'description', 'date_earned', 'certificate_file', 'certificate_url']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
             'date_earned': forms.DateInput(attrs={'type': 'date'}),
@@ -75,7 +75,7 @@ class AchievementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            if field_name == 'certificate_image':
+            if field_name == 'certificate_file':
                 field.widget.attrs['class'] = 'form-file-input'
             else:
                 field.widget.attrs['class'] = 'form-input'

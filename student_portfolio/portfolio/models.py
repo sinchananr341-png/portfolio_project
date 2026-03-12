@@ -120,7 +120,7 @@ class Achievement(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     date_earned = models.DateField(blank=True, null=True)
-    certificate_image = models.ImageField(upload_to='certificates/', blank=True, null=True)
+    certificate_file = models.FileField(upload_to='certificates/', blank=True, null=True)
     certificate_url = models.URLField(blank=True)
 
     class Meta:

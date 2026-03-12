@@ -3,6 +3,13 @@
 {% block title %}Dashboard — Portfolio Builder{% endblock %}
 
 {% block content %}
+<style>
+.w-1 { width: 20%; }
+.w-2 { width: 40%; }
+.w-3 { width: 60%; }
+.w-4 { width: 80%; }
+.w-5 { width: 100%; }
+</style>
 <div class="fade-in">
     <!-- Profile Summary -->
     <div class="profile-header">
@@ -77,7 +84,7 @@
             <div class="skill-bar mb-1">
                 <span class="skill-name">{{ skill.name }}</span>
                 <div class="skill-progress">
-                    <div class="skill-progress-fill" style="width: {% widthratio skill.proficiency 5 100 %}%;"></div>
+                    <div class="skill-progress-fill w-{{ skill.proficiency }}"></div>
                 </div>
                 <span class="skill-level">{{ skill.proficiency }}/5</span>
                 <a href="{% url 'skill_edit' pk=skill.pk %}" class="btn btn-secondary btn-sm">Edit</a>
@@ -158,6 +165,50 @@
             <div class="icon">💼</div>
             <p>Add your work experience.</p>
             <a href="{% url 'experience_create' %}" class="btn btn-primary">Add Experience</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Achievements Section -->
+    <div class="mb-3">
+        <div class="section-header">
+            <h2>🏆 Achievements & Certifications <span class="count">{{ achievements.count }}</span></h2>
+            <a href="{% url 'achievement_create' %}" class="btn btn-primary btn-sm">+ Add Achievement</a>
+        </div>
+        {% if achievements %}
+        <div class="grid-2">
+            {% for ach in achievements %}
+            <div class="card">
+                <div class="card-header">
+                    <h3>{{ ach.title }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if ach.description %}<p>{{ ach.description|truncatewords:30 }}</p>{% endif %}
+                    <p class="text-muted mt-1">Earned: {% if ach.date_earned %}{{ ach.date_earned|date:"M Y" }}{% else %}N/A{% endif %}</p>
+                    
+                    {% if ach.certificate_file or ach.certificate_url %}
+                    <div class="mt-2" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        {% if ach.certificate_file %}
+                        <a href="{{ ach.certificate_file.url }}" target="_blank" class="badge badge-primary" style="text-decoration: none;">📄 View Certificate Component</a>
+                        {% endif %}
+                        {% if ach.certificate_url %}
+                        <a href="{{ ach.certificate_url }}" target="_blank" class="badge badge-secondary" style="text-decoration: none;">🔗 Credential Link</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'achievement_edit' pk=ach.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                    <a href="{% url 'achievement_delete' pk=ach.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">🏆</div>
+            <p>Upload your certifications, awards, or internship completion letters.</p>
+            <a href="{% url 'achievement_create' %}" class="btn btn-primary">Add Achievement</a>
         </div>
         {% endif %}
     </div>

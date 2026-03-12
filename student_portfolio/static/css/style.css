@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ─── CSS Variables ───────────────────────────────────────────────────────── */
-:root {
+:root, [data-theme="dark"] {
     --bg-primary: #0a0a0f;
     --bg-secondary: #12121a;
     --bg-card: rgba(255, 255, 255, 0.04);
@@ -33,6 +33,53 @@
     --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.15);
     --transition-fast: 0.2s ease;
     --transition-med: 0.3s ease;
+}
+
+[data-theme="light"] {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+    --bg-glass: rgba(0, 0, 0, 0.04);
+    --border-glass: rgba(0, 0, 0, 0.1);
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --accent-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+    --accent-solid: #6366f1;
+    --accent-hover: #4f46e5;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #2563eb;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="developer"] {
+    /* VS Code inspired Medium / Dev Theme */
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #252526;
+    --bg-card: #2d2d30;
+    --bg-card-hover: #3e3e42;
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --border-glass: #3e3e42;
+    --text-primary: #d4d4d4;
+    --text-secondary: #9cdcfe;
+    --text-muted: #6a9955;
+    --accent-gradient: linear-gradient(135deg, #007acc, #0098ff);
+    --accent-solid: #007acc;
+    --accent-hover: #0098ff;
+    --success: #89d185;
+    --warning: #cca700;
+    --danger: #f14c4c;
+    --info: #3794ff;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(0, 122, 204, 0.25);
 }
 
 /* ─── Reset & Base ────────────────────────────────────────────────────────── */
@@ -628,6 +675,7 @@ a:hover {
     margin-bottom: 0.75rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -655,6 +703,7 @@ a:hover {
     font-size: 0.9rem;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -1073,6 +1122,7 @@ a:hover {
     line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
