@@ -16,6 +16,7 @@ class BlogPost(models.Model):
     hero_image = models.ImageField(upload_to='blog/hero/', blank=True, null=True)
     content = HTMLField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -18,6 +18,16 @@ class Profile(models.Model):
         choices=[('public', 'Public'), ('private', 'Private')],
         default='public'
     )
+    THEME_CHOICES = [
+        ('light', 'Light Theme'),
+        ('dark', 'Dark Theme'),
+        ('developer', 'Developer Theme'),
+    ]
+    theme = models.CharField(
+        max_length=20,
+        choices=THEME_CHOICES,
+        default='light'
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -103,3 +113,33 @@ class Experience(models.Model):
 
     def __str__(self):
         return f"{self.role} at {self.company}"
+
+
+class Achievement(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='achievements')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    date_earned = models.DateField(blank=True, null=True)
+    certificate_image = models.ImageField(upload_to='certificates/', blank=True, null=True)
+    certificate_url = models.URLField(blank=True)
+
+    class Meta:
+        ordering = ['-date_earned']
+
+    def __str__(self):
+        return self.title
+
+
+class ContactMessage(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='contact_messages')
+    sender_name = models.CharField(max_length=100)
+    sender_email = models.EmailField()
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Message from {self.sender_name} to {self.profile.user.username}"

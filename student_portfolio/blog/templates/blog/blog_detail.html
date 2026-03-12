@@ -26,6 +26,14 @@
     </div>
     {% endif %}
 
+    <!-- Like Section -->
+    <div class="like-section mt-4 text-center">
+        <button id="like-btn" class="btn {% if user in post.likes.all %}btn-primary{% else %}btn-secondary{% endif %}" onclick="handleLike()" style="border-radius: 30px; padding: 0.5rem 1.5rem;">
+            <span id="like-icon">{% if user in post.likes.all %}❤️{% else %}🤍{% endif %}</span> 
+            Like (<span id="like-count">{{ post.likes.count }}</span>)
+        </button>
+    </div>
+
     <!-- Share Buttons -->
     <div class="share-buttons mt-3" style="display: flex; gap: 10px; justify-content: center;">
         <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn btn-secondary" style="background-color: #0077b5; color: white; border: none;">Share on LinkedIn</a>
@@ -38,7 +46,7 @@
         <h3>Comments ({{ post.comments.count }})</h3>
         
         {% if user.is_authenticated %}
-        <div class="card mt-2">
+        <div class="card mt-2 p-3">
             <form method="post">
                 {% csrf_token %}
                 {{ comment_form.as_p }}
@@ -52,13 +60,19 @@
         <div class="comments-list mt-3">
             {% for comment in comments %}
             <div class="comment card mt-2" style="padding: 1rem;">
-                <div style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 0.5rem;">
-                    <strong>{{ comment.author.username }}</strong> · {{ comment.created_at|date:"M d, Y h:i a" }}
+                <div style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                    <span><strong>{{ comment.author.username }}</strong> · {{ comment.created_at|date:"M d, Y h:i a" }}</span>
+                    {% if user == comment.author %}
+                    <span>
+                        <a href="{% url 'edit_comment' comment.id %}" class="btn-icon">Edit</a> | 
+                        <a href="{% url 'delete_comment' comment.id %}" class="btn-icon text-danger">Delete</a>
+                    </span>
+                    {% endif %}
                 </div>
                 <p style="margin-bottom: 0.5rem;">{{ comment.message }}</p>
                 
                 {% if user.is_authenticated %}
-                <button class="btn btn-secondary btn-sm" onclick="toggleReplyForm({{ comment.id }})" style="font-size: 0.8em; padding: 0.2rem 0.5rem;">Reply</button>
+                <button class="btn btn-secondary btn-sm" onclick="toggleReplyForm('{{ comment.id }}')" style="font-size: 0.8em; padding: 0.2rem 0.5rem;">Reply</button>
                 <div id="reply-form-{{ comment.id }}" style="display: none; margin-top: 1rem; border-left: 2px solid var(--border); padding-left: 1rem;">
                     <form method="post">
                         {% csrf_token %}
@@ -74,8 +88,14 @@
                 <div class="replies mt-2" style="margin-left: 2rem; border-left: 2px solid var(--border); padding-left: 1rem;">
                     {% for reply in comment.replies.all %}
                     <div class="reply mt-2">
-                        <div style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 0.2rem;">
-                            <strong>{{ reply.author.username }}</strong> · {{ reply.created_at|date:"M d, Y h:i a" }}
+                        <div style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 0.2rem; display: flex; justify-content: space-between;">
+                            <span><strong>{{ reply.author.username }}</strong> · {{ reply.created_at|date:"M d, Y h:i a" }}</span>
+                            {% if user == reply.author %}
+                            <span>
+                                <a href="{% url 'edit_comment' reply.id %}" class="btn-icon">Edit</a> | 
+                                <a href="{% url 'delete_comment' reply.id %}" class="btn-icon text-danger">Delete</a>
+                            </span>
+                            {% endif %}
                         </div>
                         <p style="margin-bottom: 0.5rem;">{{ reply.message }}</p>
                     </div>
@@ -101,6 +121,34 @@
             form.style.display = 'block';
         } else {
             form.style.display = 'none';
+        }
+    }
+
+    async function handleLike() {
+        const btn = document.getElementById('like-btn');
+        const icon = document.getElementById('like-icon');
+        const count = document.getElementById('like-count');
+        
+        try {
+            const response = await fetch("{% url 'like_post' slug=post.slug %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (data.liked) {
+                btn.classList.replace('btn-secondary', 'btn-primary');
+                icon.textContent = '❤️';
+            } else {
+                btn.classList.replace('btn-primary', 'btn-secondary');
+                icon.textContent = '🤍';
+            }
+            count.textContent = data.count;
+        } catch (error) {
+            console.error('Error liking post:', error);
         }
     }
 </script>

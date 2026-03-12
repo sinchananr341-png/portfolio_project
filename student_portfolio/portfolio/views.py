@@ -3,8 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404, JsonResponse
 from django.template.loader import render_to_string
-from .models import Profile, Project, Skill, Education, Experience
-from .forms import ProjectForm, SkillForm, EducationForm, ExperienceForm
+from .models import Profile, Project, Skill, Education, Experience, Achievement, ContactMessage
+from .forms import ProjectForm, SkillForm, EducationForm, ExperienceForm, AchievementForm, ContactForm
+from analytics.models import PortfolioView, ResumeDownload
 from .utils import render_to_pdf
 import json
 
@@ -18,14 +19,30 @@ def dashboard(request):
     skills = Skill.objects.filter(user=request.user)
     education = Education.objects.filter(user=request.user)
     experiences = Experience.objects.filter(user=request.user)
+    achievements = Achievement.objects.filter(user=request.user)
+    contact_messages = profile.contact_messages.all()
     context = {
         'profile': profile,
         'projects': projects,
         'skills': skills,
         'education': education,
         'experiences': experiences,
+        'achievements': achievements,
+        'contact_messages': contact_messages,
     }
     return render(request, 'portfolio/dashboard.html', context)
+
+
+@login_required
+def change_theme(request):
+    if request.method == 'POST':
+        theme = request.POST.get('theme')
+        if theme in ['light', 'dark', 'developer']:
+            profile = request.user.profile
+            profile.theme = theme
+            profile.save()
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
 
 
 # ─── Public Portfolio ─────────────────────────────────────────────────────────
@@ -39,7 +56,14 @@ def public_portfolio(request, slug):
     skills = Skill.objects.filter(user=profile.user)
     education = Education.objects.filter(user=profile.user)
     experiences = Experience.objects.filter(user=profile.user)
+    achievements = Achievement.objects.filter(user=profile.user)
     blog_posts = profile.user.blog_posts.filter(status='published')
+
+    client_ip = request.META.get('REMOTE_ADDR')
+    PortfolioView.objects.create(profile=profile, ip_address=client_ip)
+
+    contact_form = ContactForm()
+
     context = {
         'profile': profile,
         'portfolio_user': profile.user,
@@ -47,9 +71,44 @@ def public_portfolio(request, slug):
         'skills': skills,
         'education': education,
         'experiences': experiences,
+        'achievements': achievements,
         'blog_posts': blog_posts,
+        'contact_form': contact_form,
     }
     return render(request, 'portfolio/public_portfolio.html', context)
+
+def submit_contact(request, slug):
+    profile = get_object_or_404(Profile, slug=slug)
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.profile = profile
+            contact.save()
+            messages.success(request, 'Your message has been sent to the recruiter.')
+        else:
+            messages.error(request, 'Error sending message. Please try again.')
+    return redirect('public_portfolio', slug=slug)
+
+def download_public_resume(request, slug):
+    profile = get_object_or_404(Profile, slug=slug)
+    client_ip = request.META.get('REMOTE_ADDR')
+    ResumeDownload.objects.create(profile=profile, ip_address=client_ip)
+
+    context = {
+        'profile': profile,
+        'user': profile.user,
+        'skills': Skill.objects.filter(user=profile.user),
+        'education': Education.objects.filter(user=profile.user),
+        'experiences': Experience.objects.filter(user=profile.user),
+        'projects': Project.objects.filter(owner=profile.user, is_public=True),
+        'achievements': Achievement.objects.filter(user=profile.user),
+    }
+
+    pdf = render_to_pdf('portfolio/resume_templates/modern.html', context, filename=f"{profile.slug}_resume.pdf")
+    if pdf:
+        return pdf
+    return redirect('public_portfolio', slug=slug)
 
 
 # ─── Project CRUD ─────────────────────────────────────────────────────────────
@@ -223,6 +282,73 @@ def experience_delete(request, pk):
         return redirect('dashboard')
     return render(request, 'portfolio/confirm_delete.html', {'object': exp, 'type': 'experience'})
 
+
+# ─── Achievement CRUD ────────────────────────────────────────────────────────
+
+@login_required
+def achievement_create(request):
+    if request.method == 'POST':
+        form = AchievementForm(request.POST, request.FILES)
+        if form.is_valid():
+            ach = form.save(commit=False)
+            ach.user = request.user
+            ach.save()
+            messages.success(request, 'Achievement added!')
+            return redirect('dashboard')
+    else:
+        form = AchievementForm()
+    return render(request, 'portfolio/generic_form.html', {'form': form, 'title': 'Add Achievement'})
+
+@login_required
+def achievement_edit(request, pk):
+    ach = get_object_or_404(Achievement, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = AchievementForm(request.POST, request.FILES, instance=ach)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Achievement updated!')
+            return redirect('dashboard')
+    else:
+        form = AchievementForm(instance=ach)
+    return render(request, 'portfolio/generic_form.html', {'form': form, 'title': 'Edit Achievement'})
+
+@login_required
+def achievement_delete(request, pk):
+    ach = get_object_or_404(Achievement, pk=pk, user=request.user)
+    if request.method == 'POST':
+        ach.delete()
+        messages.success(request, 'Achievement deleted.')
+        return redirect('dashboard')
+    return render(request, 'portfolio/confirm_delete.html', {'object': ach, 'type': 'achievement'})
+
+
+# ─── Admin Dashboard ─────────────────────────────────────────────────────────
+from django.contrib.auth import get_user_model
+from blog.models import BlogPost
+User = get_user_model()
+
+@login_required
+def custom_admin_dashboard(request):
+    if not request.user.is_superuser:
+        raise Http404("You do not have permission to view this page.")
+
+    total_users = User.objects.count()
+    total_portfolios = Profile.objects.count()
+    total_blogs = BlogPost.objects.count()
+    total_views = PortfolioView.objects.count()
+    
+    users = User.objects.all().order_by('-date_joined')
+    pending_blogs = BlogPost.objects.filter(status='draft') # could consider draft as pending
+
+    context = {
+        'total_users': total_users,
+        'total_portfolios': total_portfolios,
+        'total_blogs': total_blogs,
+        'total_views': total_views,
+        'users': users,
+        'pending_blogs': pending_blogs,
+    }
+    return render(request, 'portfolio/admin_dashboard.html', context)
 
 # ─── Resume Template System ──────────────────────────────────────────────────
 

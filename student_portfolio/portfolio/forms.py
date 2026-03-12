@@ -1,5 +1,5 @@
 from django import forms
-from .models import Project, Skill, Education, Experience
+from .models import Project, Skill, Education, Experience, Achievement, ContactMessage
 
 
 class ProjectForm(forms.ModelForm):
@@ -61,3 +61,36 @@ class ExperienceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-input'
+
+
+class AchievementForm(forms.ModelForm):
+    class Meta:
+        model = Achievement
+        fields = ['title', 'description', 'date_earned', 'certificate_image', 'certificate_url']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'date_earned': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field_name == 'certificate_image':
+                field.widget.attrs['class'] = 'form-file-input'
+            else:
+                field.widget.attrs['class'] = 'form-input'
+
+
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = ContactMessage
+        fields = ['sender_name', 'sender_email', 'message']
+        widgets = {
+            'message': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-input'
+            field.widget.attrs['placeholder'] = field.label

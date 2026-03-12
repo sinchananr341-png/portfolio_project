@@ -21,7 +21,7 @@ class CustomUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['headline', 'bio', 'avatar', 'location', 'website', 'github', 'linkedin', 'slug', 'portfolio_visibility']
+        fields = ['headline', 'bio', 'avatar', 'location', 'website', 'github', 'linkedin', 'slug', 'portfolio_visibility', 'theme']
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 4}),
         }
