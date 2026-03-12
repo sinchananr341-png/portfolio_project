@@ -246,6 +246,7 @@ def resume_preview(request, template_name):
         'education': Education.objects.filter(user=request.user),
         'experiences': Experience.objects.filter(user=request.user),
         'projects': Project.objects.filter(owner=request.user, is_public=True),
+        'template_name': template_name,
     }
     return render(request, f'portfolio/resume_templates/{template_name}.html', context)
 

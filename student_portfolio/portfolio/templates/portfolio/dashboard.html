@@ -77,7 +77,7 @@
             <div class="skill-bar mb-1">
                 <span class="skill-name">{{ skill.name }}</span>
                 <div class="skill-progress">
-                    <div class="skill-progress-fill" style="width: {{ skill.proficiency|floatformat:0 }}0%;"></div>
+                    <div class="skill-progress-fill" style="width: {% widthratio skill.proficiency 5 100 %}%;"></div>
                 </div>
                 <span class="skill-level">{{ skill.proficiency }}/5</span>
                 <a href="{% url 'skill_edit' pk=skill.pk %}" class="btn btn-secondary btn-sm">Edit</a>
@@ -171,7 +171,7 @@
             <h3>📝 Write Blog Post</h3>
             <p class="card-body">Share your thoughts and experiences</p>
         </a>
-        <a href="{% url 'resume_preview' %}" class="card" style="text-decoration: none;">
+        <a href="{% url 'resume_selection' %}" class="card" style="text-decoration: none;">
             <h3>📄 View Resume</h3>
             <p class="card-body">Preview and download your auto-generated resume</p>
         </a>

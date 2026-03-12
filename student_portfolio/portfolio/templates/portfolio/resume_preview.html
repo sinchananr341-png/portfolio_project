@@ -6,10 +6,13 @@
 <div class="fade-in">
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <h1>Resume Preview</h1>
+            <h1>Resume Preview ({{ template_name|title }})</h1>
             <p>Auto-generated from your profile data</p>
         </div>
-        <a href="{% url 'resume_download' %}" class="btn btn-primary">📥 Download PDF</a>
+        <div class="actions mt-3">
+            <a href="{% url 'resume_selection' %}" class="btn btn-secondary">← Back to Templates</a>
+            <a href="{% url 'resume_download' template_name=template_name|default:'modern' %}" class="btn btn-primary">📥 Download PDF</a>
+        </div>
     </div>
 
     <div class="card" style="padding: 2.5rem; max-width: 800px; margin: 0 auto;">
