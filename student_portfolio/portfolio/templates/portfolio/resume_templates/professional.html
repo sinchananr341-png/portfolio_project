@@ -13,6 +13,12 @@
     .item-header { display: flex; justify-content: space-between; align-items: baseline; font-weight: bold; margin-bottom: 2px; }
     .item-subtitle { display: flex; justify-content: space-between; align-items: baseline; font-style: italic; color: #555; margin-bottom: 5px; }
     .item-desc { margin-top: 5px; text-align: justify; padding-left: 15px; }
+    {% if font_family %}body { font-family: {{ font_family }}; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    h2 { color: {{ accent_color }}; border-bottom-color: {{ accent_color }}50; }
+    .header { border-bottom-color: {{ accent_color }}; }
+    {% endif %}
 </style>
 </head>
 <body>

@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.template.loader import render_to_string
 from .models import Profile, Project, Skill, Education, Experience
 from .forms import ProjectForm, SkillForm, EducationForm, ExperienceForm
 from .utils import render_to_pdf
+import json
 
 
 # ─── Dashboard ────────────────────────────────────────────────────────────────
@@ -222,22 +224,158 @@ def experience_delete(request, pk):
     return render(request, 'portfolio/confirm_delete.html', {'object': exp, 'type': 'experience'})
 
 
-# ─── Resume ───────────────────────────────────────────────────────────────────
+# ─── Resume Template System ──────────────────────────────────────────────────
 
-RESUME_TEMPLATES = [
-    'modern', 'classic', 'minimal', 'creative', 
-    'professional', 'compact', 'academic', 'twocolumn'
+# Template metadata with display info for the gallery cards
+RESUME_TEMPLATES = {
+    'modern': {
+        'name': 'Modern',
+        'description': 'Clean lines with blue accents and a sleek header layout.',
+        'icon': '🔷',
+        'accent': '#0056b3',
+        'preview_bg': 'linear-gradient(135deg, #e8f0fe, #ffffff)',
+        'font': 'Helvetica Neue',
+        'category': 'Professional',
+    },
+    'classic': {
+        'name': 'Classic',
+        'description': 'Timeless serif design with traditional resume formatting.',
+        'icon': '📜',
+        'accent': '#333333',
+        'preview_bg': 'linear-gradient(135deg, #f5f0e8, #ffffff)',
+        'font': 'Times New Roman',
+        'category': 'Traditional',
+    },
+    'minimal': {
+        'name': 'Minimal',
+        'description': 'Ultra-clean with bold typography and maximum whitespace.',
+        'icon': '✨',
+        'accent': '#111111',
+        'preview_bg': 'linear-gradient(135deg, #f8f8f8, #ffffff)',
+        'font': 'Segoe UI',
+        'category': 'Modern',
+    },
+    'creative': {
+        'name': 'Creative',
+        'description': 'Vibrant coral header with card-based sections and rounded pills.',
+        'icon': '🎨',
+        'accent': '#ff6b6b',
+        'preview_bg': 'linear-gradient(135deg, #ffe3e3, #fafaef)',
+        'font': 'Montserrat',
+        'category': 'Creative',
+    },
+    'professional': {
+        'name': 'Professional',
+        'description': 'Corporate-ready with structured layout and bold headings.',
+        'icon': '💼',
+        'accent': '#222222',
+        'preview_bg': 'linear-gradient(135deg, #f0f0f0, #ffffff)',
+        'font': 'Arial',
+        'category': 'Professional',
+    },
+    'twocolumn': {
+        'name': 'Two-Column',
+        'description': 'Dark sidebar with contact & skills, main area for experience.',
+        'icon': '📊',
+        'accent': '#3498db',
+        'preview_bg': 'linear-gradient(135deg, #2c3e50 33%, #ecf0f1 33%)',
+        'font': 'Open Sans',
+        'category': 'Modern',
+    },
+    'academic': {
+        'name': 'Academic',
+        'description': 'Traditional CV style with centered headings and serif fonts.',
+        'icon': '🎓',
+        'accent': '#000000',
+        'preview_bg': 'linear-gradient(135deg, #f9f6f0, #ffffff)',
+        'font': 'Garamond',
+        'category': 'Academic',
+    },
+    'compact': {
+        'name': 'Compact',
+        'description': 'Information-dense layout with grey section bars and side dates.',
+        'icon': '📋',
+        'accent': '#1a1a1a',
+        'preview_bg': 'linear-gradient(135deg, #e6e6e6, #ffffff)',
+        'font': 'Helvetica',
+        'category': 'Professional',
+    },
+    'dark': {
+        'name': 'Dark Theme',
+        'description': 'Sleek dark design with gradient header and neon accent highlights.',
+        'icon': '🌙',
+        'accent': '#e94560',
+        'preview_bg': 'linear-gradient(135deg, #1a1a2e, #16213e)',
+        'font': 'Helvetica Neue',
+        'category': 'Creative',
+    },
+}
+
+# Font options available for customization
+FONT_OPTIONS = [
+    ('Helvetica, Arial, sans-serif', 'Helvetica'),
+    ("'Times New Roman', Times, serif", 'Times New Roman'),
+    ("'Georgia', serif", 'Georgia'),
+    ("'Courier New', Courier, monospace", 'Courier New'),
+    ("'Verdana', Geneva, sans-serif", 'Verdana'),
+    ("'Trebuchet MS', sans-serif", 'Trebuchet MS'),
+    ("'Garamond', serif", 'Garamond'),
+    ("'Palatino Linotype', serif", 'Palatino'),
+    ("-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 'System UI'),
+    ("'Lucida Console', Monaco, monospace", 'Lucida Console'),
 ]
+
+# Color theme presets
+COLOR_THEMES = [
+    ('#0056b3', 'Royal Blue'),
+    ('#e94560', 'Vibrant Rose'),
+    ('#2ecc71', 'Emerald Green'),
+    ('#e67e22', 'Sunset Orange'),
+    ('#9b59b6', 'Amethyst Purple'),
+    ('#1abc9c', 'Turquoise'),
+    ('#e74c3c', 'Crimson Red'),
+    ('#34495e', 'Charcoal'),
+    ('#f39c12', 'Golden Yellow'),
+    ('#2980b9', 'Ocean Blue'),
+    ('#8e44ad', 'Deep Purple'),
+    ('#d35400', 'Pumpkin'),
+]
+
+FONT_SIZES = [
+    (8, '8pt — Extra Small'),
+    (9, '9pt — Small'),
+    (10, '10pt — Default'),
+    (11, '11pt — Medium'),
+    (12, '12pt — Large'),
+    (13, '13pt — Extra Large'),
+    (14, '14pt — Huge'),
+]
+
 
 @login_required
 def resume_selection(request):
-    return render(request, 'portfolio/resume_selection.html', {'templates': RESUME_TEMPLATES})
+    """Render the resume template gallery page."""
+    context = {
+        'templates': RESUME_TEMPLATES,
+        'templates_json': json.dumps(RESUME_TEMPLATES),
+        'font_options': FONT_OPTIONS,
+        'color_themes': COLOR_THEMES,
+        'font_sizes': FONT_SIZES,
+    }
+    return render(request, 'portfolio/resume_gallery.html', context)
+
 
 @login_required
 def resume_preview(request, template_name):
+    """Render a preview of a specific resume template (HTML)."""
     if template_name not in RESUME_TEMPLATES:
         raise Http404("Template not found.")
-    
+
+    # Extract customization params from GET
+    font_family = request.GET.get('font', '')
+    font_size = request.GET.get('size', '')
+    accent_color = request.GET.get('color', '')
+
     profile = request.user.profile
     context = {
         'profile': profile,
@@ -247,14 +385,22 @@ def resume_preview(request, template_name):
         'experiences': Experience.objects.filter(user=request.user),
         'projects': Project.objects.filter(owner=request.user, is_public=True),
         'template_name': template_name,
+        'font_family': font_family,
+        'font_size': font_size,
+        'accent_color': accent_color,
     }
     return render(request, f'portfolio/resume_templates/{template_name}.html', context)
 
 
 @login_required
-def resume_download(request, template_name):
+def resume_preview_ajax(request, template_name):
+    """Return rendered HTML of a resume template for AJAX live preview."""
     if template_name not in RESUME_TEMPLATES:
-        raise Http404("Template not found.")
+        return JsonResponse({'error': 'Template not found'}, status=404)
+
+    font_family = request.GET.get('font', '')
+    font_size = request.GET.get('size', '')
+    accent_color = request.GET.get('color', '')
 
     profile = request.user.profile
     context = {
@@ -264,9 +410,40 @@ def resume_download(request, template_name):
         'education': Education.objects.filter(user=request.user),
         'experiences': Experience.objects.filter(user=request.user),
         'projects': Project.objects.filter(owner=request.user, is_public=True),
+        'font_family': font_family,
+        'font_size': font_size,
+        'accent_color': accent_color,
     }
-    pdf = render_to_pdf(f'portfolio/resume_templates/{template_name}.html', context)
+    html = render_to_string(f'portfolio/resume_templates/{template_name}.html', context, request=request)
+    return JsonResponse({'html': html})
+
+
+@login_required
+def resume_download(request, template_name):
+    """Download resume as PDF with optional customization."""
+    if template_name not in RESUME_TEMPLATES:
+        raise Http404("Template not found.")
+
+    font_family = request.GET.get('font', '')
+    font_size = request.GET.get('size', '')
+    accent_color = request.GET.get('color', '')
+
+    profile = request.user.profile
+    context = {
+        'profile': profile,
+        'user': request.user,
+        'skills': Skill.objects.filter(user=request.user),
+        'education': Education.objects.filter(user=request.user),
+        'experiences': Experience.objects.filter(user=request.user),
+        'projects': Project.objects.filter(owner=request.user, is_public=True),
+        'font_family': font_family,
+        'font_size': font_size,
+        'accent_color': accent_color,
+    }
+    template_info = RESUME_TEMPLATES[template_name]
+    filename = f"resume_{template_info['name'].lower().replace(' ', '_')}.pdf"
+    pdf = render_to_pdf(f'portfolio/resume_templates/{template_name}.html', context, filename=filename)
     if pdf:
         return pdf
-    messages.error(request, 'Error generating PDF.')
+    messages.error(request, 'Error generating PDF. Please make sure xhtml2pdf is installed.')
     return redirect('resume_selection')

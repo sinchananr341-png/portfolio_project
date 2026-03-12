@@ -19,6 +19,13 @@
     .item-desc { margin-top: 5px; font-size: 10.5pt; text-align: justify; }
     .skills-list { display: flex; flex-wrap: wrap; gap: 10px; }
     .skill-tag { background: #f0f0f0; padding: 4px 10px; border-radius: 4px; font-size: 9.5pt; color: #444; }
+    {% if font_family %}body { font-family: {{ font_family }}; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    h1, .contact-info a, h2 { color: {{ accent_color }}; }
+    .header { border-bottom-color: {{ accent_color }}; }
+    h2 { border-bottom-color: {{ accent_color }}50; }
+    {% endif %}
 </style>
 </head>
 <body>

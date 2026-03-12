@@ -30,6 +30,14 @@
     .exp-date { font-size: 9.5pt; color: #7f8c8d; font-weight: bold; }
     .exp-company { font-size: 11pt; color: #34495e; font-style: italic; margin-bottom: 5px; }
     .exp-desc { color: #555; text-align: justify; }
+    {% if font_family %}body { font-family: {{ font_family }}; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    .title { color: {{ accent_color }}; }
+    h2.side-heading { color: {{ accent_color }}; }
+    h2.main-heading { color: {{ accent_color }}; }
+    .sidebar { background-color: {{ accent_color }}; }
+    {% endif %}
 </style>
 </head>
 <body>

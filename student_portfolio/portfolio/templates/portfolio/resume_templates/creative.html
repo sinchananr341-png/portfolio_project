@@ -17,6 +17,13 @@
     .title { font-size: 14pt; font-weight: bold; color: #333; }
     .meta { color: #888; font-size: 10pt; margin-bottom: 10px; }
     .pill { background: #ffe3e3; color: #ff6b6b; padding: 5px 12px; border-radius: 20px; font-size: 9pt; font-weight: bold; display: inline-block; margin: 5px; }
+    {% if font_family %}body { font-family: {{ font_family }}; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    .header { background-color: {{ accent_color }}; }
+    h2 { color: {{ accent_color }}; border-bottom-color: {{ accent_color }}; }
+    .pill { background: {{ accent_color }}20; color: {{ accent_color }}; }
+    {% endif %}
 </style>
 </head>
 <body>

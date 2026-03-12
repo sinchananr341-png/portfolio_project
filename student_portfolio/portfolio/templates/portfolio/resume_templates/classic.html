@@ -16,6 +16,11 @@
     .item-subtitle { font-style: italic; }
     .item-desc { margin-top: 3px; }
     p { margin: 0; }
+    {% if font_family %}body { font-family: {{ font_family }}; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    h2 { border-bottom-color: {{ accent_color }}; }
+    {% endif %}
 </style>
 </head>
 <body>
