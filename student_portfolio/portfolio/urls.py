@@ -27,8 +27,9 @@ urlpatterns = [
     path('experience/<int:pk>/delete/', views.experience_delete, name='experience_delete'),
 
     # Resume
-    path('resume/', views.resume_preview, name='resume_preview'),
-    path('resume/download/', views.resume_download, name='resume_download'),
+    path('resume/', views.resume_selection, name='resume_selection'),
+    path('resume/preview/<str:template_name>/', views.resume_preview, name='resume_preview'),
+    path('resume/download/<str:template_name>/', views.resume_download, name='resume_download'),
 
     # Public portfolio — MUST be last (catches any slug)
     path('portfolio/<slug:slug>/', views.public_portfolio, name='public_portfolio'),

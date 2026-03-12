@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page { margin: 1.5cm; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.5; font-size: 11pt; }
+    .header { text-align: center; border-bottom: 2px solid #0056b3; padding-bottom: 20px; margin-bottom: 20px; }
+    h1 { margin: 0; color: #0056b3; font-size: 28pt; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; }
+    .contact-info { margin-top: 10px; font-size: 10pt; color: #666; }
+    .contact-info a { color: #0056b3; text-decoration: none; margin: 0 10px; }
+    h2 { color: #0056b3; font-size: 16pt; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; text-transform: uppercase; }
+    .section { margin-bottom: 25px; }
+    .item { margin-bottom: 15px; break-inside: avoid; }
+    .item-header { display: flex; justify-content: space-between; align-items: baseline; font-weight: bold; }
+    .item-title { font-size: 12pt; color: #222; }
+    .item-date { font-size: 10pt; color: #666; font-style: italic; }
+    .item-subtitle { font-size: 11pt; color: #555; margin-top: 2px; }
+    .item-desc { margin-top: 5px; font-size: 10.5pt; text-align: justify; }
+    .skills-list { display: flex; flex-wrap: wrap; gap: 10px; }
+    .skill-tag { background: #f0f0f0; padding: 4px 10px; border-radius: 4px; font-size: 9.5pt; color: #444; }
+</style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+        <div class="contact-info">
+            {{ profile.user.email }} | {{ profile.location }}
+            {% if profile.website %}| <a href="{{ profile.website }}">{{ profile.website }}</a>{% endif %}
+            {% if profile.linkedin %}| <a href="{{ profile.linkedin }}">LinkedIn</a>{% endif %}
+            {% if profile.github %}| <a href="{{ profile.github }}">GitHub</a>{% endif %}
+        </div>
+        <p style="margin-top:15px; text-align:justify;">{{ profile.bio }}</p>
+    </div>
+
+    {% if experiences %}
+    <div class="section">
+        <h2>Experience</h2>
+        {% for exp in experiences %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-title">{{ exp.role }} at {{ exp.company }}</span>
+                <span class="item-date">{{ exp.start_date|date:"M Y" }} - {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}</span>
+            </div>
+            <div class="item-desc">{{ exp.description|linebreaks }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if education %}
+    <div class="section">
+        <h2>Education</h2>
+        {% for edu in education %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-title">{{ edu.degree }} in {{ edu.field_of_study }}</span>
+                <span class="item-date">{{ edu.start_date|date:"Y" }} - {% if edu.end_date %}{{ edu.end_date|date:"Y" }}{% else %}Present{% endif %}</span>
+            </div>
+            <div class="item-subtitle">{{ edu.institution }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if projects %}
+    <div class="section">
+        <h2>Projects</h2>
+        {% for proj in projects %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-title">{{ proj.title }}</span>
+                {% if proj.github_link %}<span class="item-date"><a href="{{ proj.github_link }}">View Code</a></span>{% endif %}
+            </div>
+            {% if proj.tech_stack %}<div class="item-subtitle" style="font-size: 9pt; color: #777;">Technologies: {{ proj.tech_stack }}</div>{% endif %}
+            <div class="item-desc">{{ proj.description }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if skills %}
+    <div class="section">
+        <h2>Skills</h2>
+        <div class="skills-list">
+            {% for skill in skills %}
+            <span class="skill-tag">{{ skill.name }} ({{ skill.proficiency }}/5)</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html>

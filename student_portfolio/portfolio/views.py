@@ -224,8 +224,20 @@ def experience_delete(request, pk):
 
 # ─── Resume ───────────────────────────────────────────────────────────────────
 
+RESUME_TEMPLATES = [
+    'modern', 'classic', 'minimal', 'creative', 
+    'professional', 'compact', 'academic', 'twocolumn'
+]
+
 @login_required
-def resume_preview(request):
+def resume_selection(request):
+    return render(request, 'portfolio/resume_selection.html', {'templates': RESUME_TEMPLATES})
+
+@login_required
+def resume_preview(request, template_name):
+    if template_name not in RESUME_TEMPLATES:
+        raise Http404("Template not found.")
+    
     profile = request.user.profile
     context = {
         'profile': profile,
@@ -235,11 +247,14 @@ def resume_preview(request):
         'experiences': Experience.objects.filter(user=request.user),
         'projects': Project.objects.filter(owner=request.user, is_public=True),
     }
-    return render(request, 'portfolio/resume_preview.html', context)
+    return render(request, f'portfolio/resume_templates/{template_name}.html', context)
 
 
 @login_required
-def resume_download(request):
+def resume_download(request, template_name):
+    if template_name not in RESUME_TEMPLATES:
+        raise Http404("Template not found.")
+
     profile = request.user.profile
     context = {
         'profile': profile,
@@ -249,8 +264,8 @@ def resume_download(request):
         'experiences': Experience.objects.filter(user=request.user),
         'projects': Project.objects.filter(owner=request.user, is_public=True),
     }
-    pdf = render_to_pdf('portfolio/resume_pdf.html', context)
+    pdf = render_to_pdf(f'portfolio/resume_templates/{template_name}.html', context)
     if pdf:
         return pdf
     messages.error(request, 'Error generating PDF.')
-    return redirect('resume_preview')
+    return redirect('resume_selection')

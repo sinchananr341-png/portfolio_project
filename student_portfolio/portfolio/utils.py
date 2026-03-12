@@ -16,11 +16,12 @@ def render_to_pdf(template_src, context_dict={}):
 
     template = get_template(template_src)
     html = template.render(context_dict)
+    
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
 
     if not pdf.err:
         response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
+        response['Content-Disposition'] = 'inline; filename="resume.pdf"'
         return response
     return None
