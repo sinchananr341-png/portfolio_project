@@ -1,0 +1,26 @@
+<h2>Add Project</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Project</button>
+</form>
+
+<h1>My Projects</h1>
+
+{% for project in projects %}
+<div>
+    <h2>{{ project.title }}</h2>
+    <p>{{ project.description }}</p>
+    <p><b>Tech Stack:</b> {{ project.tech_stack }}</p>
+
+    {% if project.github_link %}
+    <a href="{{ project.github_link }}">GitHub</a>
+    {% endif %}
+
+    {% if project.live_demo %}
+    <a href="{{ project.live_demo }}">Live Demo</a>
+    {% endif %}
+</div>
+<hr>
+{% endfor %}

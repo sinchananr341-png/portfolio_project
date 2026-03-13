@@ -1,0 +1,10 @@
+{
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/student_portfolio"
+    ],
+    "python.defaultInterpreterPath": "${workspaceFolder}/student_portfolio/env/Scripts/python.exe",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportMissingModuleSource": "none"
+    }
+}

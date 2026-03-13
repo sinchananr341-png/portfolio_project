@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Template Gallery — Portfolio Builder{% endblock %}
+
+{% block content %}
+<div class="resume-gallery-page fade-in">
+
+    <!-- Page Header -->
+    <div class="page-header text-center">
+        <h1>✦ Resume Template Gallery</h1>
+        <p>Choose your perfect design, customize fonts & colors, then download as PDF</p>
+    </div>
+
+    <!-- Template Gallery Grid -->
+    <div class="rg-section-label">
+        <span class="rg-section-icon">🎨</span>
+        <span>Choose a Template</span>
+        <span class="rg-count">{{ templates|length }} designs</span>
+    </div>
+
+    <div class="rg-gallery-grid" id="templateGallery">
+        {% for key, tpl in templates.items %}
+        <div class="rg-template-card {% if forloop.first %}rg-card-active{% endif %}"
+             data-template="{{ key }}"
+             onclick="selectTemplate('{{ key }}')"
+             id="card-{{ key }}">
+            <div class="rg-card-preview" style="background: {{ tpl.preview_bg }};">
+                <span class="rg-card-icon">{{ tpl.icon }}</span>
+                <div class="rg-card-layout-lines">
+                    <div class="rg-line rg-line-title" style="background: {{ tpl.accent }};"></div>
+                    <div class="rg-line rg-line-sub"></div>
+                    <div class="rg-line rg-line-full"></div>
+                    <div class="rg-line rg-line-full"></div>
+                    <div class="rg-line rg-line-half"></div>
+                </div>
+            </div>
+            <div class="rg-card-body">
+                <div class="rg-card-name">{{ tpl.name }}</div>
+                <div class="rg-card-desc">{{ tpl.description }}</div>
+                <div class="rg-card-meta">
+                    <span class="rg-card-badge" style="color: {{ tpl.accent }}; border-color: {{ tpl.accent }}33; background: {{ tpl.accent }}0d;">{{ tpl.category }}</span>
+                </div>
+            </div>
+            <div class="rg-card-selected-indicator">
+                <span>✓</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Customization & Preview Section -->
+    <div class="rg-builder-section" id="builderSection">
+        <div class="rg-section-label">
+            <span class="rg-section-icon">⚙️</span>
+            <span>Customize & Preview</span>
+        </div>
+
+        <div class="rg-builder-layout">
+            <!-- Left: Customization Panel -->
+            <div class="rg-customize-panel">
+                <div class="rg-panel-card">
+                    <h3 class="rg-panel-title">
+                        <span class="rg-panel-icon">🖋</span> Font Style
+                    </h3>
+                    <select id="fontSelect" class="rg-select" onchange="updatePreview()">
+                        {% for value, label in font_options %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="rg-panel-card">
+                    <h3 class="rg-panel-title">
+                        <span class="rg-panel-icon">📏</span> Font Size
+                    </h3>
+                    <select id="sizeSelect" class="rg-select" onchange="updatePreview()">
+                        {% for value, label in font_sizes %}
+                        <option value="{{ value }}" {% if value == 10 %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="rg-panel-card">
+                    <h3 class="rg-panel-title">
+                        <span class="rg-panel-icon">🎨</span> Color Theme
+                    </h3>
+                    <div class="rg-color-grid">
+                        {% for value, label in color_themes %}
+                        <button class="rg-color-swatch {% if forloop.first %}rg-swatch-active{% endif %}"
+                                style="background: {{ value }};"
+                                data-color="{{ value }}"
+                                title="{{ label }}"
+                                onclick="selectColor('{{ value }}', this)">
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <div class="rg-custom-color">
+                        <label for="customColor">Custom:</label>
+                        <input type="color" id="customColor" value="#0056b3" onchange="selectColor(this.value, null)">
+                        <span id="colorHexLabel">#0056b3</span>
+                    </div>
+                </div>
+
+                <!-- Selected Template Info -->
+                <div class="rg-panel-card rg-selected-info">
+                    <h3 class="rg-panel-title">
+                        <span class="rg-panel-icon">📄</span> Selected Template
+                    </h3>
+                    <div class="rg-selected-template-display">
+                        <span class="rg-selected-icon" id="selectedIcon">🔷</span>
+                        <div>
+                            <div class="rg-selected-name" id="selectedName">Modern</div>
+                            <div class="rg-selected-cat" id="selectedCategory">Professional</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="rg-actions">
+                    <button class="btn btn-primary rg-btn-download" onclick="downloadPDF()" id="downloadBtn">
+                        <span class="rg-btn-icon">📥</span> Download PDF
+                    </button>
+                    <a class="btn btn-secondary rg-btn-preview-new" id="previewNewTab" href="#" target="_blank">
+                        <span class="rg-btn-icon">🔗</span> Open in New Tab
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Live Preview -->
+            <div class="rg-preview-panel">
+                <div class="rg-preview-toolbar">
+                    <div class="rg-preview-dots">
+                        <span class="rg-dot rg-dot-red"></span>
+                        <span class="rg-dot rg-dot-yellow"></span>
+                        <span class="rg-dot rg-dot-green"></span>
+                    </div>
+                    <div class="rg-preview-title">Resume Preview</div>
+                    <button class="rg-refresh-btn" onclick="updatePreview()" title="Refresh Preview">⟳</button>
+                </div>
+                <div class="rg-preview-container" id="previewContainer">
+                    <div class="rg-preview-loading" id="previewLoading">
+                        <div class="rg-spinner"></div>
+                        <span>Loading preview...</span>
+                    </div>
+                    <iframe id="previewFrame" class="rg-preview-frame" sandbox="allow-same-origin"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // State
+    let currentTemplate = 'modern';
+    let currentFont = '';
+    let currentSize = '10';
+    let currentColor = '#0056b3';
+    const templateData = {{ templates_json|safe }};
+
+    // URL patterns
+    const previewBaseUrl = '{% url "resume_preview" template_name="__TEMPLATE__" %}'.replace('__TEMPLATE__/', '');
+    const downloadBaseUrl = '{% url "resume_download" template_name="__TEMPLATE__" %}'.replace('__TEMPLATE__/', '');
+    const ajaxBaseUrl = '{% url "resume_preview_ajax" template_name="__TEMPLATE__" %}'.replace('__TEMPLATE__/', '');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        updatePreview();
+        updateLinks();
+    });
+
+    function selectTemplate(templateKey) {
+        currentTemplate = templateKey;
+
+        // Update active card
+        document.querySelectorAll('.rg-template-card').forEach(c => c.classList.remove('rg-card-active'));
+        document.getElementById('card-' + templateKey).classList.add('rg-card-active');
+
+        // Update info in sidebar
+        const tpl = templateData[templateKey];
+        document.getElementById('selectedIcon').textContent = tpl.icon;
+        document.getElementById('selectedName').textContent = tpl.name;
+        document.getElementById('selectedCategory').textContent = tpl.category;
+
+        // Update preview
+        updatePreview();
+        updateLinks();
+
+        // Scroll to builder section smoothly
+        document.getElementById('builderSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function selectColor(color, element) {
+        currentColor = color;
+        document.getElementById('customColor').value = color;
+        document.getElementById('colorHexLabel').textContent = color;
+
+        // Update active swatch
+        document.querySelectorAll('.rg-color-swatch').forEach(s => s.classList.remove('rg-swatch-active'));
+        if (element) {
+            element.classList.add('rg-swatch-active');
+        }
+
+        updatePreview();
+        updateLinks();
+    }
+
+    function buildQueryString() {
+        const font = document.getElementById('fontSelect').value;
+        const size = document.getElementById('sizeSelect').value;
+        const params = new URLSearchParams();
+        if (font) params.set('font', font);
+        if (size && size !== '10') params.set('size', size);
+        if (currentColor) params.set('color', currentColor);
+        return params.toString();
+    }
+
+    function updateLinks() {
+        const qs = buildQueryString();
+        const qsSuffix = qs ? '?' + qs : '';
+        document.getElementById('previewNewTab').href = previewBaseUrl + currentTemplate + '/' + qsSuffix;
+        document.getElementById('downloadBtn').onclick = function() {
+            window.location.href = downloadBaseUrl + currentTemplate + '/' + qsSuffix;
+        };
+    }
+
+    let previewTimeout;
+    function updatePreview() {
+        clearTimeout(previewTimeout);
+        previewTimeout = setTimeout(() => {
+            doUpdatePreview();
+        }, 300); // debounce
+    }
+
+    function doUpdatePreview() {
+        const loading = document.getElementById('previewLoading');
+        const frame = document.getElementById('previewFrame');
+
+        loading.style.display = 'flex';
+        frame.style.opacity = '0.3';
+
+        const qs = buildQueryString();
+        const url = ajaxBaseUrl + currentTemplate + '/' + (qs ? '?' + qs : '');
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.html) {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                doc.open();
+                doc.write(data.html);
+                doc.close();
+            }
+            loading.style.display = 'none';
+            frame.style.opacity = '1';
+        })
+        .catch(err => {
+            console.error('Preview error:', err);
+            loading.style.display = 'none';
+            frame.style.opacity = '1';
+        });
+
+        updateLinks();
+    }
+
+    function downloadPDF() {
+        const qs = buildQueryString();
+        const url = downloadBaseUrl + currentTemplate + '/' + (qs ? '?' + qs : '');
+        window.location.href = url;
+    }
+</script>
+{% endblock %}
