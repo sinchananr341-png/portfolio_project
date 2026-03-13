@@ -43,7 +43,7 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <div class="name">{{ profile.user.first_name }}<br>{{ profile.user.last_name }}</div>
+            <div class="name">{% if profile.user.get_full_name %}{{ profile.user.get_full_name }}{% else %}{{ profile.user.username }}{% endif %}</div>
             <div class="title">{{ profile.headline }}</div>
             
             <h2 class="side-heading">Contact</h2>

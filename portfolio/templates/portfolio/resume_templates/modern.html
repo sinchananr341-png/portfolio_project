@@ -30,7 +30,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+        <h1>{% if profile.user.get_full_name %}{{ profile.user.get_full_name }}{% else %}{{ profile.user.username }}{% endif %}</h1>
         <div class="contact-info">
             {{ profile.user.email }} | {{ profile.location }}
             {% if profile.website %}| <a href="{{ profile.website }}">{{ profile.website }}</a>{% endif %}
