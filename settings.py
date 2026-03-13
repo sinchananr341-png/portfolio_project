@@ -4,6 +4,9 @@ Django settings for student_portfolio project.
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,6 +33,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,6 +83,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files (user uploads)
 MEDIA_URL = '/media/'
