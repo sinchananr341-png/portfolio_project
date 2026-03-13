@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page { margin: 1cm; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #111; line-height: 1.6; font-size: 10pt; }
+    .header { margin-bottom: 30px; }
+    h1 { font-size: 32pt; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -1px; }
+    .headline { font-size: 14pt; color: #555; }
+    .contact { display: flex; gap: 15px; font-size: 9pt; color: #777; margin-top: 15px; }
+    h2 { font-size: 12pt; text-transform: uppercase; letter-spacing: 1px; color: #000; margin-top: 30px; border-bottom: 1px solid #111; padding-bottom: 5px; }
+    .item { margin-bottom: 15px; }
+    .item strong { font-size: 11pt; }
+    .item span.date { color: #888; font-size: 9pt; float: right; }
+    .item p { margin: 2px 0; color: #444; }
+    ul { padding-left: 20px; margin-top: 5px; }
+    li { color: #444; }
+    {% if font_family %}body { font-family: {{ font_family }}; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    h2 { color: {{ accent_color }}; border-bottom-color: {{ accent_color }}; }
+    {% endif %}
+</style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+        {% if profile.headline %}<div class="headline">{{ profile.headline }}</div>{% endif %}
+        <div class="contact">
+            {{ profile.user.email }} • {{ profile.location }}
+            {% if profile.linkedin %}• {{ profile.linkedin }}{% endif %}
+        </div>
+    </div>
+
+    {% if experiences %}
+    <h2>Experience</h2>
+    {% for exp in experiences %}
+    <div class="item">
+        <strong>{{ exp.role }}</strong>, {{ exp.company }}
+        <span class="date">{{ exp.start_date|date:"Y" }} – {% if exp.end_date %}{{ exp.end_date|date:"Y" }}{% else %}Present{% endif %}</span>
+        <div style="margin-top: 5px;">{{ exp.description|linebreaks }}</div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if education %}
+    <h2>Education</h2>
+    {% for edu in education %}
+    <div class="item">
+        <strong>{{ edu.degree }} in {{ edu.field_of_study }}</strong>, {{ edu.institution }}
+        <span class="date">{{ edu.start_date|date:"Y" }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if projects %}
+    <h2>Selected Projects</h2>
+    {% for proj in projects %}
+    <div class="item">
+        <strong>{{ proj.title }}</strong>
+        <p>{{ proj.description }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if skills %}
+    <h2>Skills</h2>
+    <p style="color: #444;">{% for skill in skills %}{{ skill.name }} • {% endfor %}</p>
+    {% endif %}
+</body>
+</html>
