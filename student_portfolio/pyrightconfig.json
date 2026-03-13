@@ -1,0 +1,7 @@
+{
+    "venvPath": "c:/project2.0/portfolio_project/student_portfolio",
+    "venv": "env",
+    "extraPaths": [
+        "c:/project2.0/portfolio_project/student_portfolio"
+    ]
+}

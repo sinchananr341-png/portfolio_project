@@ -12,6 +12,7 @@ SECRET_KEY = 'django-insecure-8r2%qpd6lp*va0chd$%y7f0w8ncifzq%vnm(c4cl!47l648z6&
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+STATIC_ROOT =BASE_DIR/"staticfiles"
 
 INSTALLED_APPS = [
     'accounts',
