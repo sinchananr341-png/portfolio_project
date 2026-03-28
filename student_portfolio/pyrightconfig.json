@@ -1,7 +1,7 @@
 {
-    "venvPath": "c:/project2.0/portfolio_project/student_portfolio",
+    "venvPath": "d:/project_12/portfolio_project",
     "venv": "env",
     "extraPaths": [
-        "c:/project2.0/portfolio_project/student_portfolio"
+        "d:/project_12/portfolio_project"
     ]
 }

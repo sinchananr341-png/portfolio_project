@@ -1,0 +1,9 @@
+<style>
+    {% if font_family %}body { font-family: '{{ font_family }}', Helvetica, Arial, sans-serif; }{% endif %}
+    {% if font_size %}body { font-size: {{ font_size }}pt; }{% endif %}
+    {% if accent_color %}
+    h1, .contact-info a, h2 { color: {{ accent_color }}; }
+    .header { border-bottom-color: {{ accent_color }}; }
+    h2 { border-bottom-color: {{ accent_color }}50; }
+    {% endif %}
+</style>
